@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { Router } from 'express';
 import { RegisterService } from './registration.service.js';
 
