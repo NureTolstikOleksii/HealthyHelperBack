@@ -4,6 +4,25 @@ import { ContainerService } from './container.service.js';
 const router = Router();
 const containerService = new ContainerService();
 
+// Отримання id ліків за назвою
+router.get('/medicationId', async (req, res) => {
+    try {
+        const { medication_name } = req.body;
+
+        if (!medication_name) {
+            return res.status(400).json({ message: 'Необхідно вказати назву препарату' });
+        }
+
+        const medicationId = await containerService.getMedicationIdByName(req.db, medication_name);
+
+        res.json({ id_medication: medicationId });
+    } catch (error) {
+        console.error('Помилка при пошуку id ліків за назвою:', error);
+        res.status(500).json({ message: 'Не вдалося знайти id ліків за назвою' });
+    }
+});
+
+
 // Отримання найближчого MedicationIntakeSchedule для пацієнта
 router.get('/nearestIntake/:id_patient', async (req, res) => {
     try {
@@ -20,8 +39,6 @@ router.get('/nearestIntake/:id_patient', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch nearest medication intake' });
     }
 });
-
-
 
 // Оновлення статусу прийому ліків
 router.post('/updateMedicationIntakeStatus/:id_intake_schedule', async (req, res) => {
@@ -41,6 +58,7 @@ router.post('/updateMedicationIntakeStatus/:id_intake_schedule', async (req, res
     }
 });
 
+// отримання пацієнта закріаленого за контейнером
 router.get('/:id/getPatientId', async (req, res) => {
     try {
         const { id } = req.params;
@@ -74,6 +92,10 @@ router.post('/:id/updateStatus', async (req, res) => {
         res.status(500).json({ message: 'Помилка при оновленні статусу контейнера' });
     }
 });
+
+
+
+
 
 // додавання нового контейнера
 router.post('/add', async (req, res) => {

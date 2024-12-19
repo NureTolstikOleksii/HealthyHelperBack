@@ -1,4 +1,27 @@
 export class ContainerService {
+    // Знаходження id ліків за назвою
+    async getMedicationIdByName(db, medication_name) {
+        try {
+            const medication = await db.medication.findFirst({
+                where: {
+                    medication_name: medication_name,
+                },
+                select: {
+                    id_medication: true,
+                },
+            });
+
+            if (!medication) {
+                throw new Error(`Медикамент із назвою '${medication_name}' не знайдено`);
+            }
+
+            return medication.id_medication;
+        } catch (error) {
+            console.error('Помилка при пошуку id препарату за назвою:', error);
+            throw new Error('Не вдалося знайти препарат за назвою');
+        }
+    }
+
     // отримання наступного часу прийняття    
     async getNearestMedicationIntake(db, id_patient) {
         try {
