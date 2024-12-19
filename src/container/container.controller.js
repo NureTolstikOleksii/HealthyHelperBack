@@ -5,7 +5,7 @@ const router = Router();
 const containerService = new ContainerService();
 
 // Отримання id ліків за назвою
-router.get('/medicationId', async (req, res) => {
+router.post('/medicationId', async (req, res) => {
     try {
         const { medication_name } = req.body;
 
