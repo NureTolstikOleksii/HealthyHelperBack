@@ -15,7 +15,7 @@ router.post('/decrementQuantity/:id_inventory', async (req, res) => {
         const updatedInventory = await containerService.decrementInventoryQuantity(req.db, id_inventory);
 
         res.json({
-            message: 'Кількість успішно зменшено',
+            message: 'success',
             id_inventory: updatedInventory.id_inventory,
             new_quantity: updatedInventory.new_quantity,
         });
