@@ -1,4 +1,44 @@
 export class ContainerService {
+    // Метод для зменшення кількості на одиницю
+    async decrementInventoryQuantity(db, id_inventory) {
+        try {
+            const inventory = await db.inventory.findUnique({
+                where: {
+                    id_inventory: Number(id_inventory),
+                },
+                select: {
+                    quantity: true,
+                },
+            });
+
+            if (!inventory) {
+                throw new Error(`Інвентар з ID ${id_inventory} не знайдено`);
+            }
+
+            if (inventory.quantity <= 0) {
+                throw new Error('Кількість в інвентарі вже дорівнює 0');
+            }
+
+            const updatedInventory = await db.inventory.update({
+                where: {
+                    id_inventory: Number(id_inventory),
+                },
+                data: {
+                    quantity: inventory.quantity - 1,
+                },
+            });
+
+            return {
+                id_inventory: updatedInventory.id_inventory,
+                new_quantity: updatedInventory.quantity,
+            };
+        } catch (error) {
+            console.error('Помилка при оновленні кількості:', error);
+            throw new Error('Не вдалося оновити кількість');
+        }
+    }
+
+
     // Знаходження id ліків за назвою
     async getMedicationIdByName(db, medication_name) {
         try {

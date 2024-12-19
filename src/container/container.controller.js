@@ -4,6 +4,26 @@ import { ContainerService } from './container.service.js';
 const router = Router();
 const containerService = new ContainerService();
 
+router.post('/decrementQuantity/:id_inventory', async (req, res) => {
+    try {
+        const { id_inventory } = req.params;
+
+        if (!id_inventory) {
+            return res.status(400).json({ message: 'Необхідно вказати ID інвентаря' });
+        }
+
+        const updatedInventory = await containerService.decrementInventoryQuantity(req.db, id_inventory);
+
+        res.json({
+            message: 'Кількість успішно зменшено',
+            id_inventory: updatedInventory.id_inventory,
+            new_quantity: updatedInventory.new_quantity,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 router.get('/inventoryByMedicationAndContainer/:id_medication/:id_container', async (req, res) => {
     try {
         const { id_medication, id_container } = req.params;
