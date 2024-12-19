@@ -4,6 +4,43 @@ import { ContainerService } from './container.service.js';
 const router = Router();
 const containerService = new ContainerService();
 
+// Отримання найближчого MedicationIntakeSchedule для пацієнта
+router.get('/nearestIntake/:id_patient', async (req, res) => {
+    try {
+        const { id_patient } = req.params;
+        const nearestIntake = await containerService.getNearestMedicationIntake(req.db, id_patient);
+
+        if (!nearestIntake) {
+            return res.status(404).json({ message: 'No untaken medications' });
+        }
+
+        res.json(nearestIntake);
+    } catch (error) {
+        console.error('Error fetching nearest medication intake:', error);
+        res.status(500).json({ message: 'Failed to fetch nearest medication intake' });
+    }
+});
+
+
+
+// Оновлення статусу прийому ліків
+router.post('/updateMedicationIntakeStatus/:id_intake_schedule', async (req, res) => {
+    try {
+        const { id_intake_schedule } = req.params;
+        const { status } = req.body;
+
+        if (status === undefined) {
+            return res.status(400).json({ message: 'Необхідно вказати статус' });
+        }
+
+        const updatedIntake = await containerService.updateMedicationIntakeStatus(req.db, id_intake_schedule, status);
+        res.json({ message: 'Статус прийому ліків успішно оновлено', intake: updatedIntake });
+    } catch (error) {
+        console.error('Error updating medication intake status:', error);
+        res.status(500).json({ message: 'Помилка при оновленні статусу прийому ліків' });
+    }
+});
+
 router.get('/:id/getPatientId', async (req, res) => {
     try {
         const { id } = req.params;

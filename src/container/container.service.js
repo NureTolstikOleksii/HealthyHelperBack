@@ -1,4 +1,104 @@
 export class ContainerService {
+    // отримання наступного часу прийняття    
+    async getNearestMedicationIntake(db, id_patient) {
+        try {
+            const nowUTC = new Date();
+            const utcOffsetHours = 2;
+            const nowLocal = new Date(nowUTC.getTime() + utcOffsetHours * 60 * 60 * 1000);
+    
+            // Отримуємо всі призначення пацієнта
+            const prescriptions = await db.prescription.findMany({
+                where: {
+                    id_patient: Number(id_patient),
+                },
+                select: {
+                    id_prescription: true,
+                    prescription_date: true,
+                    MedicationInPrescription: {
+                        select: {
+                            id_medication_in_prescription: true,
+                            dosage_duration: true,
+                            Medication: {
+                                select: {
+                                    medication_name: true, // Отримуємо назву препарату
+                                },
+                            },
+                            MedicationIntakeSchedule: {
+                                where: {
+                                    status: 0,
+                                    intake_time: {
+                                        gt: nowLocal,
+                                    },
+                                },
+                                orderBy: {
+                                    intake_time: "asc",
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+    
+            if (!prescriptions || prescriptions.length === 0) {
+                return null; // Немає призначень
+            }
+    
+            // Перевіряємо кожне призначення
+            for (const prescription of prescriptions) {
+                const prescriptionDate = new Date(prescription.prescription_date);
+    
+                for (const medication of prescription.MedicationInPrescription) {
+                    // Визначаємо тривалість прийому (наприклад, "10 днів")
+                    const durationDays = parseInt(medication.dosage_duration.split(" ")[0], 10);
+                    const validUntil = new Date(prescriptionDate);
+                    validUntil.setDate(validUntil.getDate() + durationDays);
+    
+                    // Якщо термін дії препарату ще не вийшов
+                    if (nowLocal <= validUntil) {
+                        // Знайти найближчий розклад для цього препарату
+                        const nearestSchedule = medication.MedicationIntakeSchedule[0];
+                        if (nearestSchedule) {
+                            return {
+                                id_intake_schedule: nearestSchedule.id_intake_schedule, // Додаємо ID розкладу
+                                intake_time: nearestSchedule.intake_time,
+                                medication_name: medication.Medication.medication_name, // Назва препарату
+                            };
+                        }
+                    }
+                }
+            }
+    
+            return null; // Немає найближчого прийому
+        } catch (error) {
+            console.error("Помилка при отриманні найближчого прийому ліків:", error);
+            throw new Error("Не вдалося знайти найближчий прийом ліків");
+        }
+    }
+    
+    
+    // Оновлення статусу прийому ліків у MedicationIntakeSchedule
+    async updateMedicationIntakeStatus(db, id_intake_schedule, status) {
+        try {
+            const intake = await db.medicationIntakeSchedule.findUnique({
+                where: { id_intake_schedule: Number(id_intake_schedule) },
+            });
+
+            if (!intake) {
+                throw new Error(`Запис з ID ${id_intake_schedule} не знайдено`);
+            }
+
+            const updatedIntake = await db.medicationIntakeSchedule.update({
+                where: { id_intake_schedule: Number(id_intake_schedule) },
+                data: { status: Number(status) },
+            });
+
+            return updatedIntake;
+        } catch (error) {
+            console.error('Помилка при оновленні статусу прийому ліків:', error);
+            throw new Error('Не вдалося оновити статус прийому ліків');
+        }
+    }
+
     // отримати id пацієнта, закріпленого за контейнером
     async getPatientIdByContainer(db, id_container) {
         try {
