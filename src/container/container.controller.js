@@ -4,6 +4,41 @@ import { ContainerService } from './container.service.js';
 const router = Router();
 const containerService = new ContainerService();
 
+router.get('/inventoryByMedicationAndContainer/:id_medication/:id_container', async (req, res) => {
+    try {
+        const { id_medication, id_container } = req.params;
+
+        // Перевірка вхідних даних
+        if (!id_medication || !id_container) {
+            return res.status(400).json({ message: 'Необхідно вказати id ліків та id контейнера' });
+        }
+
+        // Пошук відсіку, який містить ліки у контейнері
+        const inventory = await req.db.inventory.findFirst({
+            where: {
+                id_container: Number(id_container),
+                id_medication: Number(id_medication),
+            },
+            select: {
+                id_inventory: true,
+                quantity: true,
+                inventory_number: true,
+            },
+        });
+
+        if (!inventory) {
+            return res.status(404).json({ message: 'Ліки не знайдено у вказаному контейнері' });
+        }
+
+        // Повернення знайденого відсіку як об’єкта
+        res.json(inventory);
+    } catch (error) {
+        console.error('Помилка при пошуку відсіку:', error);
+        res.status(500).json({ message: 'Не вдалося отримати інформацію про відсік' });
+    }
+});
+
+
 // Отримання id ліків за назвою
 router.post('/medicationId', async (req, res) => {
     try {
