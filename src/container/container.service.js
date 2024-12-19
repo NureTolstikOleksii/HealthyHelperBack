@@ -22,14 +22,15 @@ export class ContainerService {
         }
     }
 
-    // отримання наступного часу прийняття    
+    // знаходження найближчого прийому
     async getNearestMedicationIntake(db, id_patient) {
         try {
             const nowUTC = new Date();
             const utcOffsetHours = 2;
             const nowLocal = new Date(nowUTC.getTime() + utcOffsetHours * 60 * 60 * 1000);
+            console.log(`Поточний час: ${nowLocal}`);
     
-            // Отримуємо всі призначення пацієнта
+            // Крок 1: Знайти всі призначення пацієнта
             const prescriptions = await db.prescription.findMany({
                 where: {
                     id_patient: Number(id_patient),
@@ -43,18 +44,7 @@ export class ContainerService {
                             dosage_duration: true,
                             Medication: {
                                 select: {
-                                    medication_name: true, // Отримуємо назву препарату
-                                },
-                            },
-                            MedicationIntakeSchedule: {
-                                where: {
-                                    status: 0,
-                                    intake_time: {
-                                        gt: nowLocal,
-                                    },
-                                },
-                                orderBy: {
-                                    intake_time: "asc",
+                                    medication_name: true,
                                 },
                             },
                         },
@@ -63,42 +53,75 @@ export class ContainerService {
             });
     
             if (!prescriptions || prescriptions.length === 0) {
-                return null; // Немає призначень
+                console.log("Немає призначень для пацієнта");
+                return null;
             }
     
-            // Перевіряємо кожне призначення
+            let allSchedules = [];
+    
             for (const prescription of prescriptions) {
                 const prescriptionDate = new Date(prescription.prescription_date);
     
                 for (const medication of prescription.MedicationInPrescription) {
-                    // Визначаємо тривалість прийому (наприклад, "10 днів")
-                    const durationDays = parseInt(medication.dosage_duration.split(" ")[0], 10);
+                    // Розраховуємо термін дії рецепта
+                    const durationDays = parseInt(medication.dosage_duration?.split(" ")[0] || "0", 10);
                     const validUntil = new Date(prescriptionDate);
                     validUntil.setDate(validUntil.getDate() + durationDays);
     
-                    // Якщо термін дії препарату ще не вийшов
+                    // Перевіряємо, чи ліки ще валідні
                     if (nowLocal <= validUntil) {
-                        // Знайти найближчий розклад для цього препарату
-                        const nearestSchedule = medication.MedicationIntakeSchedule[0];
-                        if (nearestSchedule) {
-                            return {
-                                id_intake_schedule: nearestSchedule.id_intake_schedule, // Додаємо ID розкладу
-                                intake_time: nearestSchedule.intake_time,
-                                medication_name: medication.Medication.medication_name, // Назва препарату
-                            };
-                        }
+                        console.log(
+                            `Ліки: ${medication.Medication.medication_name}, валідні до: ${validUntil}`
+                        );
+    
+                        // Отримуємо всі розклади прийому для цього ліка
+                        const schedules = await db.medicationIntakeSchedule.findMany({
+                            where: {
+                                id_medication_in_prescription: medication.id_medication_in_prescription,
+                                status: 0, // Тільки невиконані
+                                intake_time: {
+                                    gt: nowLocal, // Тільки майбутні прийоми
+                                },
+                            },
+                            select: {
+                                id_intake_schedule: true,
+                                intake_time: true,
+                            },
+                            orderBy: {
+                                intake_time: "asc",
+                            },
+                        });
+    
+                        // Додаємо ці розклади до загального списку
+                        allSchedules = allSchedules.concat(
+                            schedules.map(schedule => ({
+                                id_intake_schedule: schedule.id_intake_schedule,
+                                intake_time: schedule.intake_time,
+                                medication_name: medication.Medication.medication_name,
+                            }))
+                        );
+                    } else {
+                        console.log(
+                            `Ліки: ${medication.Medication.medication_name}, призначення закінчилося: ${validUntil}`
+                        );
                     }
                 }
             }
     
-            return null; // Немає найближчого прийому
+            if (allSchedules.length === 0) {
+                console.log("Немає запланованих прийомів");
+                return null;
+            }
+    
+            allSchedules.sort((a, b) => new Date(a.intake_time) - new Date(b.intake_time));
+            console.log("Найближчий прийом:", allSchedules[0]);
+            return allSchedules[0];
         } catch (error) {
             console.error("Помилка при отриманні найближчого прийому ліків:", error);
             throw new Error("Не вдалося знайти найближчий прийом ліків");
         }
     }
-    
-    
+     
     // Оновлення статусу прийому ліків у MedicationIntakeSchedule
     async updateMedicationIntakeStatus(db, id_intake_schedule, status) {
         try {
