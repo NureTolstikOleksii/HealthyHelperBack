@@ -1,4 +1,23 @@
 export class ContainerService {
+    // отримати id пацієнта, закріпленого за контейнером
+    async getPatientIdByContainer(db, id_container) {
+        try {
+            const container = await db.container.findUnique({
+                where: { id_container: Number(id_container) },
+                select: { id_patient: true },
+            });
+
+            if (!container) {
+                throw new Error(`Контейнер з ID ${id_container} не знайдено`);
+            }
+
+            return container.id_patient;
+        } catch (error) {
+            console.error('Помилка при отриманні ID пацієнта:', error);
+            throw new Error('Не вдалося отримати ID пацієнта');
+        }
+    }
+
     // оновлення статусу роботи та підключення контейнера
     async updateContainerStatus(db, id, operational_status, network_status) {
         try {

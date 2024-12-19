@@ -4,6 +4,22 @@ import { ContainerService } from './container.service.js';
 const router = Router();
 const containerService = new ContainerService();
 
+router.get('/:id/getPatientId', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const patientId = await containerService.getPatientIdByContainer(req.db, id);
+        
+        if (!patientId) {
+            return res.status(404).json({ message: 'No patient found for this container' });
+        }
+
+        res.json({ id_patient: patientId });
+    } catch (error) {
+        console.error('Error fetching patient ID:', error);
+        res.status(500).json({ message: 'Помилка при отриманні ID пацієнта' });
+    }
+});
+
 // оновлення статусу роботи та підключення контейнера
 router.post('/:id/updateStatus', async (req, res) => {
     try {
