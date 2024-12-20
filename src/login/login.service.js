@@ -10,7 +10,8 @@ export class LoginService {
         });
 
         if (user && bcrypt.compareSync(password, user.password)) {
-            return user;
+            const { password, ...userWithoutPassword } = user; // Видаляємо поле пароля
+            return userWithoutPassword; // Повертаємо користувача без пароля
         }
         return null;
     }
