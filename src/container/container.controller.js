@@ -4,6 +4,7 @@ import { ContainerService } from './container.service.js';
 const router = Router();
 const containerService = new ContainerService();
 
+// оновлення кількості ліків після взяття
 router.post('/decrementQuantity/:id_inventory', async (req, res) => {
     try {
         const { id_inventory } = req.params;
@@ -24,16 +25,15 @@ router.post('/decrementQuantity/:id_inventory', async (req, res) => {
     }
 });
 
+// отримання інформації про те шо в якомі відсіку
 router.get('/inventoryByMedicationAndContainer/:id_medication/:id_container', async (req, res) => {
     try {
         const { id_medication, id_container } = req.params;
 
-        // Перевірка вхідних даних
         if (!id_medication || !id_container) {
             return res.status(400).json({ message: 'Необхідно вказати id ліків та id контейнера' });
         }
 
-        // Пошук відсіку, який містить ліки у контейнері
         const inventory = await req.db.inventory.findFirst({
             where: {
                 id_container: Number(id_container),
@@ -50,7 +50,6 @@ router.get('/inventoryByMedicationAndContainer/:id_medication/:id_container', as
             return res.status(404).json({ message: 'Ліки не знайдено у вказаному контейнері' });
         }
 
-        // Повернення знайденого відсіку як об’єкта
         res.json(inventory);
     } catch (error) {
         console.error('Помилка при пошуку відсіку:', error);
@@ -76,7 +75,6 @@ router.post('/medicationId', async (req, res) => {
         res.status(500).json({ message: 'Не вдалося знайти id ліків за назвою' });
     }
 });
-
 
 // Отримання найближчого MedicationIntakeSchedule для пацієнта
 router.get('/nearestIntake/:id_patient', async (req, res) => {
@@ -147,10 +145,6 @@ router.post('/:id/updateStatus', async (req, res) => {
         res.status(500).json({ message: 'Помилка при оновленні статусу контейнера' });
     }
 });
-
-
-
-
 
 // додавання нового контейнера
 router.post('/add', async (req, res) => {
