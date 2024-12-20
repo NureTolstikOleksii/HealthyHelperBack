@@ -76,9 +76,9 @@ export class NotificationService {
             return { message: "Medication not found in the container." };
         }
 
-        if (inventory.quantity >= 2) {
+        /*if (inventory.quantity >= 3) {
             return { message: "Sufficient stock available for the medication." };
-        }
+        }*/
 
         const notification = await db.notification.create({
             data: {
