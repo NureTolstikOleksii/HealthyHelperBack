@@ -21,7 +21,7 @@ router.post('/changeRole/:userId', async (req, res) => {
 
     try {
         const updatedUser = await adminService.changeRole(req.db, userId, newRoleId);
-        res.status(200).json({ message: 'Role updated successfully', user: updatedUser });
+        res.status(200).json({ message: 'Role updated successfully'});
     } catch (error) {
         res.status(500).json({ error: 'Failed to update role', details: error.message });
     }
