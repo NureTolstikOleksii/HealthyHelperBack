@@ -34,7 +34,7 @@ export class NotificationService {
         }
 
         const currentDate = new Date();
-        const adjustedDate = new Date(currentDate.getTime());
+        const adjustedDate = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
         
         const notification = await db.notification.create({
             data: {
@@ -79,8 +79,11 @@ export class NotificationService {
             return { message: "Medication not found in the container." };
         }
 
+        /*if (inventory.quantity >= 3) {
+            return { message: "Sufficient stock available for the medication." };
+        }*/
         const currentDate = new Date();
-        const adjustedDate = new Date(currentDate.getTime());
+        const adjustedDate = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
 
         const notification = await db.notification.create({
             data: {
