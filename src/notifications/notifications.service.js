@@ -33,19 +33,22 @@ export class NotificationService {
             return { message: "No missed doses found for the medication" };
         }
 
+        const currentDate = new Date();
+        const adjustedDate = new Date(currentDate.getTime());
+        
         const notification = await db.notification.create({
             data: {
                 text: `You missed a dose of ${inventory.Medication.medication_name}. Please take it as soon as possible.`,
-                send_date: new Date(),
-                send_time: new Date(),
+                send_date: adjustedDate,
+                send_time: adjustedDate,
                 id_container: container.id_container,
             },
         });
 
         const formattedNotification = {
             ...notification,
-            send_date: new Date(notification.send_date).toLocaleDateString('uk-UA'),
-            send_time: new Date(notification.send_time).toLocaleTimeString('uk-UA', {
+            send_date: adjustedDate.toLocaleDateString('uk-UA'),
+            send_time: adjustedDate.toLocaleTimeString('uk-UA', {
                 hour: '2-digit',
                 minute: '2-digit',
             }), 
@@ -79,20 +82,22 @@ export class NotificationService {
         /*if (inventory.quantity >= 3) {
             return { message: "Sufficient stock available for the medication." };
         }*/
+        const currentDate = new Date();
+        const adjustedDate = new Date(currentDate.getTime());
 
         const notification = await db.notification.create({
             data: {
                 text: `Low stock alert for ${inventory.Medication.medication_name}. Only ${inventory.quantity} tablet(s) left. Please refill the container.`,
-                send_date: new Date(),
-                send_time: new Date(),
+                send_date: adjustedDate,
+                send_time: adjustedDate,
                 id_container: container.id_container,
             },
         });
 
         const formattedNotification = {
             ...notification,
-            send_date: new Date(notification.send_date).toLocaleDateString('uk-UA'),
-            send_time: new Date(notification.send_time).toLocaleTimeString('uk-UA', {
+            send_date: adjustedDate.toLocaleDateString('uk-UA'),
+            send_time: adjustedDate.toLocaleTimeString('uk-UA', {
                 hour: '2-digit',
                 minute: '2-digit',
             }),
