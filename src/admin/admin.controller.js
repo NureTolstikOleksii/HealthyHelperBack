@@ -87,7 +87,7 @@ router.post('/blockUser/:userId', async (req, res) => {
     const { userId } = req.params;
     try {
         const blockedUser = await adminService.blockUser(req.db, userId);
-        res.status(200).json({ message: 'User blocked successfully', user: blockedUser });
+        res.status(200).json({ message: 'User blocked successfully'});
     } catch (error) {
         res.status(500).json({ error: 'Failed to block user', details: error.message });
     }
