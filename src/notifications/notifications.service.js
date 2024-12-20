@@ -79,9 +79,6 @@ export class NotificationService {
             return { message: "Medication not found in the container." };
         }
 
-        /*if (inventory.quantity >= 3) {
-            return { message: "Sufficient stock available for the medication." };
-        }*/
         const currentDate = new Date();
         const adjustedDate = new Date(currentDate.getTime());
 
