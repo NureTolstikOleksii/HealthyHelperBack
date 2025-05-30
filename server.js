@@ -21,18 +21,16 @@ dotenv.config();
 const prisma = new PrismaClient();
 const app = express();
 
-// ⬅️ перемісти сюди
-app.use((req, res, next) => {
-    req.db = prisma;
-    next();
-});
-
 async function main() {
     app.use(express.json());
 
     app.use(express.urlencoded({ extended: true }));
 
-
+// ⬅️ перемісти сюди
+    app.use((req, res, next) => {
+        req.db = prisma;
+        next();
+    });
 
 
     app.use(cors({
