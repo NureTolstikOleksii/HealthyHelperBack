@@ -81,7 +81,7 @@ async function main() {
         res.status(500).send('Oops, something happened...');
     });
 
-    app.listen(process.env.PORT || 4200, '0.0.0.0', () => {
+    app.listen(process.env.PORT || 4200,  () => {
         console.log(`Server is running on port ${process.env.PORT || 4200}`);
     });
 }
