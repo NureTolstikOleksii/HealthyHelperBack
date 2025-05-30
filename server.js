@@ -26,12 +26,10 @@ async function main() {
 
     app.use(express.urlencoded({ extended: true }));
 
-// ⬅️ перемісти сюди
     app.use((req, res, next) => {
         req.db = prisma;
         next();
     });
-
 
     app.use(cors({
         origin: '*',
@@ -41,7 +39,7 @@ async function main() {
     app.use(cookieParser());
 
     app.get('/', (req, res) => {
-        res.send('Hello');
+        res.send('Hello from back!');
     });
 
     app.use(session({
