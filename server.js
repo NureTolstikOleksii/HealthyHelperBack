@@ -33,7 +33,11 @@ async function main() {
     }));
 
     app.use(cookieParser());
-    
+
+    app.get('/', (req, res) => {
+        res.send('Hello');
+    });
+
     app.use((req, res, next) => {
         req.db = prisma;
         next();
