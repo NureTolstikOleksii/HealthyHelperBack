@@ -11,7 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 async function handleLogin(req, res, allowedRoles) {
     const { email, password } = req.body;
-
+    console.error('Login error:', err);
     if (!email || !password) {
         return res.status(400).json({
             status: 'error',

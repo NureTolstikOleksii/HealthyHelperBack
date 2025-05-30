@@ -21,28 +21,29 @@ dotenv.config();
 const prisma = new PrismaClient();
 const app = express();
 
+// ⬅️ перемісти сюди
+app.use((req, res, next) => {
+    req.db = prisma;
+    next();
+});
 
 async function main() {
     app.use(express.json());
 
     app.use(express.urlencoded({ extended: true }));
 
+
+
+
     app.use(cors({
-        origin: 'https://healthy-helper-web.vercel.app', // або localhost:3000 для локальної перевірки
+        origin: '*',
         credentials: true,
-        methods: 'GET,POST,PUT,DELETE,PATCH',
-        allowedHeaders: 'Content-Type,Authorization',
     }));
 
     app.use(cookieParser());
 
     app.get('/', (req, res) => {
         res.send('Hello');
-    });
-
-    app.use((req, res, next) => {
-        req.db = prisma;
-        next();
     });
 
     app.use(session({
