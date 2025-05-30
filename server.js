@@ -24,14 +24,14 @@ const app = express();
 
 async function main() {
     app.use(express.json());
-    
+
     app.use(express.urlencoded({ extended: true }));
 
     app.use(cors({
-        origin: '*',
+        origin: 'https://healthy-helper-web.vercel.app', // або localhost:3000 для локальної перевірки
+        credentials: true,
         methods: 'GET,POST,PUT,DELETE,PATCH',
         allowedHeaders: 'Content-Type,Authorization',
-        credentials: true,
     }));
 
     app.use(cookieParser());
