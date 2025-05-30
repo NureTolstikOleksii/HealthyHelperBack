@@ -26,7 +26,7 @@ async function main() {
     app.use(express.json());
 
     app.use(cors({
-        origin: 'https://healthy-helper-web.vercel.app',
+        origin: '*',
         methods: 'GET,POST,PUT,DELETE,PATCH',
         allowedHeaders: 'Content-Type,Authorization',
         credentials: true,
