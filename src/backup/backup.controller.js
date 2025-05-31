@@ -20,9 +20,23 @@ router.get('/last', async (req, res) => {
 router.post('/manual', async (req, res) => {
     try {
         const backup = await backupService.createBackup('manual');
-        res.json({
-            message: 'Резервна копія створена успішно',
-            timestamp: backup.timestamp
+
+        const timestamp = backup.timestamp.replace(/[:.]/g, '-');
+        const fileName = `backup-${timestamp}.sql`;
+        const filePath = path.resolve('backups', fileName);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Файл бекапу не знайдено' });
+        }
+
+        // Примусове завантаження файлу
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                console.error('Помилка при надсиланні файлу:', err);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Не вдалося надіслати файл' });
+                }
+            }
         });
     } catch (err) {
         console.error('Помилка при створенні бекапу:', err);
