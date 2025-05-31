@@ -26,8 +26,12 @@ export class BackupService {
         const envFile = path.join(backupDir, `env-backup-${timestamp}.env`);
 
         const dbUrl = process.env.DATABASE_URL;
-        const pgDumpPath = `"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe"`;
-        const dbDumpCommand = `${pgDumpPath} "${dbUrl}" -f "${dbFile}"`;
+        const isWindows = os.platform() === 'win32';
+        const pgDumpPath = isWindows
+            ? `"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe"` // або шлях до твого локального
+            : 'pg_dump';
+
+        const dbDumpCommand = `${pgDumpPath} --dbname="${dbUrl}" -f "${dbFile}"`;
 
         // 1. Створити SQL dump
         await new Promise((resolve, reject) => {
