@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import dotenv from 'dotenv';
+import * as os from "node:os";
 
 dotenv.config();
 
