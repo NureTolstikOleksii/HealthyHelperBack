@@ -75,7 +75,25 @@ export class StaffService {
             });
         }
         // відправка на пошту
-        await sendStaffCredentialsEmail(data.login, plainPassword);
+        //await sendStaffCredentialsEmail(data.login, plainPassword);
+
+        const now = new Date();
+        const notification = await db.notifications.create({
+            data: {
+                notification_type: 'success',
+                message: `Вітаємо вас у системі, ${createdUser.last_name} ${createdUser.first_name}!`,
+                sent_date: now,
+                sent_time: new Date(now.getTime() + (3 * 60 * 60 * 1000)),
+            }
+        });
+
+        await db.notification_recipients.create({
+            data: {
+                notification_id: notification.notification_id,
+                user_id: createdUser.user_id,
+                is_read: false
+            }
+        });
 
         return createdUser;
     }
