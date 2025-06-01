@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import { sendStaffCredentialsEmail } from '../utils/emailService.js';
 import ExcelJS from 'exceljs';
+import admin from "../firebase/firebase.js";
 
 export class StaffService {
     // отримати список мед. працівників
@@ -94,6 +95,21 @@ export class StaffService {
                 is_read: false
             }
         });
+
+        if (createdUser.firebase_token) {
+            try {
+                await admin.messaging().send({
+                    token: createdUser.firebase_token,
+                    notification: {
+                        title: 'Ласкаво просимо!',
+                        body: `Вітаємо вас у системі, ${createdUser.first_name}!`
+                    }
+                });
+                console.log('Push-сповіщення успішно відправлено новому працівнику');
+            } catch (error) {
+                console.error('Помилка при відправці push-сповіщення:', error);
+            }
+        }
 
         return createdUser;
     }
