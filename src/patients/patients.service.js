@@ -131,7 +131,7 @@ export class PatientsService {
         });
 
         // відправка на пошту
-        //await sendWelcomeEmail(email, plainPassword);
+        await sendWelcomeEmail(email, plainPassword);
 
         const now = new Date();
         const notification = await db.notifications.create({

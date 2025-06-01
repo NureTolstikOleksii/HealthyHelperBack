@@ -76,7 +76,7 @@ export class StaffService {
             });
         }
         // відправка на пошту
-        //await sendStaffCredentialsEmail(data.login, plainPassword);
+        await sendStaffCredentialsEmail(data.login, plainPassword);
 
         const now = new Date();
         const notification = await db.notifications.create({
