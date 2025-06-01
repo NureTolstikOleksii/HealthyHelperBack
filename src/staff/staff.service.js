@@ -96,21 +96,6 @@ export class StaffService {
             }
         });
 
-        if (createdUser.firebase_token) {
-            try {
-                await admin.messaging().send({
-                    token: createdUser.firebase_token,
-                    notification: {
-                        title: 'Ласкаво просимо!',
-                        body: `Вітаємо вас у системі, ${createdUser.first_name}!`
-                    }
-                });
-                console.log('Push-сповіщення успішно відправлено новому працівнику');
-            } catch (error) {
-                console.error('Помилка при відправці push-сповіщення:', error);
-            }
-        }
-
         return createdUser;
     }
 

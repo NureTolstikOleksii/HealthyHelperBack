@@ -131,7 +131,25 @@ export class PatientsService {
         });
 
         // відправка на пошту
-        await sendWelcomeEmail(email, plainPassword);
+        //await sendWelcomeEmail(email, plainPassword);
+
+        const now = new Date();
+        const notification = await db.notifications.create({
+            data: {
+                notification_type: 'success',
+                message: `Вітаємо вас у системі, ${user.last_name} ${user.first_name}!`,
+                sent_date: now,
+                sent_time: new Date(now.getTime() + (3 * 60 * 60 * 1000)) // +3 години (UTC+3)
+            }
+        });
+
+        await db.notification_recipients.create({
+            data: {
+                notification_id: notification.notification_id,
+                user_id: user.user_id,
+                is_read: false
+            }
+        });
 
         return {
             message: 'Пацієнта створено успішно',
