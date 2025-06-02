@@ -110,7 +110,6 @@ loginRouter.post('/forgot-password', async (req, res) => {
     }
 });
 
-
 loginRouter.post('/reset-password', validatePasswordStrength, async (req, res) => {
     const { token, newPassword } = req.body;
 
@@ -131,4 +130,3 @@ loginRouter.post('/reset-password', validatePasswordStrength, async (req, res) =
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
-

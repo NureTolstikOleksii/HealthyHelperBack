@@ -142,27 +142,22 @@ export class ContainerService {
             throw new Error('Container not found');
         }
 
-        const compartmentsInfo = [];
-
-        for (let i = 1; i <= 6; i++) {
-            const compartment = container.compartments.find(c => c.compartment_number === i);
-
-            if (!compartment || !compartment.compartment_medications.length) {
-                compartmentsInfo.push(`Comp. ${i} - 0`);
-                continue;
+        const compartmentsInfo = container.compartments.map((comp) => {
+            if (!comp.compartment_medications.length) {
+                return `Comp. ${comp.compartment_number} - 0`;
             }
 
-            const medInfo = compartment.compartment_medications[0].prescription_medications;
+            const med = comp.compartment_medications[0]?.prescription_medications;
 
-            const medName = medInfo?.medications?.name || '?';
-            const quantity = medInfo?.quantity || '?';
-            const rawTime = medInfo?.intake_time;
+            const medName = med?.medications?.name || '?';
+            const quantity = med?.quantity || '?';
+            const rawTime = med?.intake_time;
             const intakeTime = rawTime
                 ? rawTime.toISOString().substring(11, 16)
                 : '??:??';
 
-            compartmentsInfo.push(`Comp. ${i} - ${medName} - ${quantity} табл. - ${intakeTime}`);
-        }
+            return `Comp. ${comp.compartment_number} - ${medName} - ${quantity} табл. - ${intakeTime}`;
+        });
 
         return {
             container_number: container.container_number,
