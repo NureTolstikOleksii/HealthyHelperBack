@@ -848,7 +848,7 @@ function getIntakeTimes(timesPerDay) {
         case 1:
             return ['10:00'];
         case 2:
-            return ['10:00', '14:30'];
+            return ['10:00', '15:00'];
         case 3:
             return ['08:00', '14:00', '20:00'];
         case 4:
