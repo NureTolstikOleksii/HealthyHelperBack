@@ -7,7 +7,7 @@ import * as os from "node:os";
 dotenv.config();
 
 export class BackupService {
-    // отриманння останнього бекапу
+     // отриманння останнього бекапу
     async getLastBackup() {
         const logFile = path.join('backups', 'last-backup.txt');
         if (fs.existsSync(logFile)) {
@@ -29,7 +29,7 @@ export class BackupService {
         const dbUrl = process.env.DATABASE_URL;
         const isWindows = os.platform() === 'win32';
         const pgDumpPath = isWindows
-            ? `"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe"` // або шлях до твого локального
+            ? `"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe"`
             : 'pg_dump';
 
         const dbDumpCommand = `${pgDumpPath} --dbname="${dbUrl}" -f "${dbFile}"`;
